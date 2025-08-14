@@ -14,7 +14,7 @@ namespace MC_SVFilters
         // BepInEx
         public const string pluginGuid = "mc.starvalor.newgamesortingandunlocks";
         public const string pluginName = "SV New Game Sorting and Unlocks";
-        public const string pluginVersion = "1.0.0";
+        public const string pluginVersion = "1.0.1";
 
         // Mod        
         private static int[] shipExcludeList = { 92, 94, 101 }; // 92 = Shriek, 94 = Thoth, 101 = Testudo
@@ -179,6 +179,24 @@ namespace MC_SVFilters
         private static bool CrewUnlocked(int id)
         {
             return GenData.GetUnlockedCrewMembers().Contains(id);
+        }
+
+        [HarmonyPatch(typeof(ShipDB), nameof(ShipDB.GetModelString))]
+        [HarmonyPostfix]
+        private static void ShipDBGetString_Post(int id, ref string __result)
+        {
+            if (GameManager.instance != null && GameManager.instance.inGame)
+                return;
+
+            ShipModelData smd = ShipDB.GetModel(id);
+            if (smd == null || (smd.id != id))
+                return;
+
+            string matchString = ":  </color><b>" + smd.spaceOcupied + "</b>";
+            string pointString = Lang.Get(0, 419, "</color><b>" + smd.startingCost + "</b>");
+            Debug.Log(pointString);
+            __result = __result.Insert(__result.IndexOf(matchString) + matchString.Length, ColorSys.gray + "\n" + pointString);
+            Debug.Log(__result);
         }
     }
 }
