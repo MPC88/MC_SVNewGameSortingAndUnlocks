@@ -192,11 +192,9 @@ namespace MC_SVFilters
             if (smd == null || (smd.id != id))
                 return;
 
-            string matchString = ":  </color><b>" + smd.spaceOcupied + "</b>";
+            string matchString = "\n\n" + Lang.Get(5, 116) + ":  </color><b>" + smd.spaceOcupied + "</b>";
             string pointString = Lang.Get(0, 419, "</color><b>" + smd.startingCost + "</b>");
-            Debug.Log(pointString);
             __result = __result.Insert(__result.IndexOf(matchString) + matchString.Length, ColorSys.gray + "\n" + pointString);
-            Debug.Log(__result);
         }
     }
 }
