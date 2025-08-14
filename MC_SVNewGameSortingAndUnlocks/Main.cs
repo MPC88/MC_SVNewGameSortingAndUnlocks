@@ -14,7 +14,7 @@ namespace MC_SVFilters
         // BepInEx
         public const string pluginGuid = "mc.starvalor.newgamesortingandunlocks";
         public const string pluginName = "SV New Game Sorting and Unlocks";
-        public const string pluginVersion = "1.0.1";
+        public const string pluginVersion = "1.0.2";
 
         // Mod        
         private static int[] shipExcludeList = { 92, 94, 101 }; // 92 = Shriek, 94 = Thoth, 101 = Testudo
