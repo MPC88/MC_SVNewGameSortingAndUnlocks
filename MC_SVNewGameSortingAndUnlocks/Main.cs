@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -14,15 +15,31 @@ namespace MC_SVFilters
         // BepInEx
         public const string pluginGuid = "mc.starvalor.newgamesortingandunlocks";
         public const string pluginName = "SV New Game Sorting and Unlocks";
-        public const string pluginVersion = "1.0.2";
+        public const string pluginVersion = "1.0.3";
 
-        // Mod        
+        // Star Valor IDs
         private static int[] shipExcludeList = { 92, 94, 101 }; // 92 = Shriek, 94 = Thoth, 101 = Testudo
         private static int[] crewExclueList = { 0, 2, 10, 13 }; // 0 = Laious, 2 = The Exiled, 10 = 0x3D07, 13 = Sam Holo's Gunner
+
+        // Mod
+        public static ConfigEntry<bool> cfgShowHiddenShips;
+        public static ConfigEntry<bool> cfgShowHiddenCrew;
 
         public void Awake()
         {
             Harmony.CreateAndPatchAll(typeof(Main));
+
+            cfgShowHiddenShips = Config.Bind<bool>(
+                "Settings",
+                "Show hidden ships?",
+                false,
+                "Lists unobtainable ships.");
+
+            cfgShowHiddenCrew = Config.Bind<bool>(
+                "Settings",
+                "Show hidden crew?",
+                false,
+                "Lists unobtainable Crew.");
         }
 
         [HarmonyPatch(typeof(PerksPanel), "ShowShips")]
@@ -123,8 +140,12 @@ namespace MC_SVFilters
             List<int> ships = new List<int>();
 
             foreach (ShipModelData smd in AccessTools.StaticFieldRefAccess<List<ShipModelData>>(typeof(ShipDB), "shipModels"))
-                if (!shipExcludeList.Contains<int>(smd.id))
-                    ships.Add(smd.id);
+            {
+                if (!cfgShowHiddenShips.Value && shipExcludeList.Contains<int>(smd.id))
+                    continue;
+                
+                ships.Add(smd.id);
+            }
 
             ships.Sort(CompareShips);
 
@@ -165,8 +186,12 @@ namespace MC_SVFilters
             List<int> crew = new List<int>();
 
             foreach (CrewMember cm in GameManager.predefinitions.crewMembers)
-                if (!crewExclueList.Contains<int>(cm.id))
-                    crew.Add(cm.id);
+            {
+                if (!cfgShowHiddenCrew.Value && crewExclueList.Contains<int>(cm.id))
+                    continue;
+
+                crew.Add(cm.id);
+            }
 
             return crew;
         }
